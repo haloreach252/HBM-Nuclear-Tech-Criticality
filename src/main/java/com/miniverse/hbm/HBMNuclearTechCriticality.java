@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 public class HBMNuclearTechCriticality
 {
     public static final String MODID = "hbmnucleartechcriticality";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public HBMNuclearTechCriticality(FMLJavaModLoadingContext context)
     {
