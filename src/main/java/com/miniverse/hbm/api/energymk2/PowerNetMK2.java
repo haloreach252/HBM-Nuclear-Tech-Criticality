@@ -1,4 +1,4 @@
-package com.miniverse.hbm.energymk2;
+package com.miniverse.hbm.api.energymk2;
 
 import java.util.*;
 
