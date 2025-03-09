@@ -1,23 +1,20 @@
 package com.miniverse.hbm.inventory.fluid;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.miniverse.hbm.config.GeneralConfig;
+import com.miniverse.hbm.HBMNuclearTechCriticality;
 import com.miniverse.hbm.inventory.fluid.tank.FluidTank;
 import com.miniverse.hbm.inventory.fluid.trait.*;
 import com.miniverse.hbm.inventory.fluid.trait.FluidTraitSimple.*;
-import com.miniverse.hbm.lib.RefStrings;
 import com.miniverse.hbm.render.util.EnumSymbol;
 import com.miniverse.hbm.uninos.INetworkProvider;
 import com.miniverse.hbm.util.I18nUtil;
 
 import com.miniverse.hbm.api.fluidmk2.FluidNetMK2;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -66,7 +63,7 @@ public class FluidType {
         this.flammability = f;
         this.reactivity = r;
         this.symbol = symbol;
-        this.texture = new ResourceLocation(RefStrings.MODID, "textures/gui/fluids/" + name.toLowerCase(Locale.US) + ".png");
+        this.texture = new ResourceLocation(HBMNuclearTechCriticality.MODID, "textures/gui/fluids/" + name.toLowerCase(Locale.US) + ".png");
         this.guiTint = 0xffffff;
         this.localizedOverride = null;
 
@@ -81,7 +78,7 @@ public class FluidType {
         this.flammability = f;
         this.reactivity = r;
         this.symbol = symbol;
-        this.texture = new ResourceLocation(RefStrings.MODID, "textures/gui/fluids/" + texName + ".png");
+        this.texture = new ResourceLocation(HBMNuclearTechCriticality.MODID, "textures/gui/fluids/" + texName + ".png");
         this.guiTint = tint;
         this.localizedOverride = displayName;
         this.customFluid = true;
