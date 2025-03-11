@@ -1,7 +1,7 @@
 package com.miniverse.hbm.packet.toclient;
 
-import com.miniverse.hbm.extprop.HbmLivingProps;
-import com.miniverse.hbm.extprop.HbmPlayerProps;
+import com.miniverse.hbm.capabilities.HbmLivingProps;
+import com.miniverse.hbm.capabilities.HbmPlayerProps;
 import com.miniverse.hbm.packet.PrecompiledPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
