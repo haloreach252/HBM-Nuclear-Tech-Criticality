@@ -6,11 +6,10 @@ import com.miniverse.hbm.handler.HbmKeybinds.EnumKeybind;
 import com.miniverse.hbm.items.armor.ItemModShield;
 import com.miniverse.hbm.HBMNuclearTechCriticality;
 import com.miniverse.hbm.tileentity.IGUIProvider;
-import io.netty.buffer.ByteBuf;
+
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -18,9 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -31,10 +28,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * This replaces the old IExtendedEntityProperties-based HbmPlayerProps.
  * You must attach this capability to player entities (for example, using an AttachCapabilitiesEvent).
  */
-public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
-
-    @CapabilityInject(IHbmPlayerProps.class)
-    public static final Capability<IHbmPlayerProps> HBM_PLAYER_PROPS_CAP = null;
+public class HbmPlayerProps {
 
     // The player instance (set externally, for example during capability attachment)
     private Player player;
@@ -69,7 +63,7 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
     }
 
     /**
-     * Checks if the given key (as defined by the mod’s keybind enum) is pressed.
+     * Checks if the given key (as defined by the mod's keybind enum) is pressed.
      */
     public boolean getKeyPressed(EnumKeybind key) {
         return keysPressed[key.ordinal()];
@@ -92,7 +86,7 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
 
             // Toggle jetpack enabled
             if (key == EnumKeybind.TOGGLE_JETPACK) {
-                if (!player.level.isClientSide) {
+                if (!player.level().isClientSide()) {
                     this.enableBackpack = !this.enableBackpack;
                     if (this.enableBackpack)
                         HBMNuclearTechCriticality.proxy.displayTooltip("§aJetpack ON", HBMNuclearTechCriticality.proxy.ID_JETPACK);
@@ -103,7 +97,7 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
 
             // Toggle HUD enabled
             if (key == EnumKeybind.TOGGLE_HEAD) {
-                if (!player.level.isClientSide) {
+                if (!player.level().isClientSide()) {
                     this.enableHUD = !this.enableHUD;
                     if (this.enableHUD)
                         HBMNuclearTechCriticality.proxy.displayTooltip("§aHUD ON", HBMNuclearTechCriticality.proxy.ID_HUD);
@@ -114,7 +108,7 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
 
             // Open GUI for rail cars if the TRAIN key is pressed
             if (key == EnumKeybind.TRAIN) {
-                if (!player.level.isClientSide && player.getVehicle() != null) {
+                if (!player.level().isClientSide() && player.getVehicle() != null) {
                     Entity riding = player.getVehicle();
                     if (riding instanceof EntityRailCarBase && riding instanceof IGUIProvider) {
                         // Use NetworkHooks.openGui instead of FMLNetworkHandler.openGui.
@@ -158,13 +152,13 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
         if (props.plinkCooldown <= 0) {
             SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(sound));
             if (soundEvent != null)
-                player.level.playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.PLAYERS, volume, pitch);
+                player.level().playSound(null, player.getX(), player.getY(), player.getZ(), soundEvent, SoundSource.PLAYERS, volume, pitch);
             props.plinkCooldown = plinkCooldownLength;
         }
     }
 
     /**
-     * Returns the maximum effective shield. If the player’s chest armor has a shield mod,
+     * Returns the maximum effective shield. If the player's chest armor has a shield mod,
      * its shield bonus is added.
      */
     public float getEffectiveMaxShield() {
@@ -182,37 +176,8 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
     }
 
     /**
-     * Writes some of the capability’s data to the given ByteBuf.
-     * (This method is used for network synchronization.)
+     * Serializes capability data to NBT.
      */
-    public void serialize(ByteBuf buf) {
-        buf.writeBoolean(this.hasReceivedBook);
-        buf.writeFloat(this.shield);
-        buf.writeFloat(this.maxShield);
-        buf.writeBoolean(this.enableBackpack);
-        buf.writeBoolean(this.enableHUD);
-        buf.writeInt(this.reputation);
-        buf.writeBoolean(this.isOnLadder);
-    }
-
-    /**
-     * Reads the capability’s data from the given ByteBuf.
-     */
-    public void deserialize(ByteBuf buf) {
-        if (buf.readableBytes() > 0) {
-            this.hasReceivedBook = buf.readBoolean();
-            this.shield = buf.readFloat();
-            this.maxShield = buf.readFloat();
-            this.enableBackpack = buf.readBoolean();
-            this.enableHUD = buf.readBoolean();
-            this.reputation = buf.readInt();
-            this.isOnLadder = buf.readBoolean();
-        }
-    }
-
-    // ICapabilitySerializable implementation
-
-    @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("hasReceivedBook", this.hasReceivedBook);
@@ -222,11 +187,17 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
         tag.putBoolean("enableHUD", this.enableHUD);
         tag.putInt("reputation", this.reputation);
         tag.putBoolean("isOnLadder", this.isOnLadder);
-        // Additional fields (dashCooldown, stamina, etc.) can be added as needed.
+        tag.putInt("dashCooldown", this.dashCooldown);
+        tag.putInt("totalDashCount", this.totalDashCount);
+        tag.putInt("stamina", this.stamina);
+        tag.putInt("plinkCooldown", this.plinkCooldown);
+        tag.putInt("lastDamage", this.lastDamage);
         return tag;
     }
 
-    @Override
+    /**
+     * Deserializes capability data from NBT.
+     */
     public void deserializeNBT(CompoundTag nbt) {
         this.hasReceivedBook = nbt.getBoolean("hasReceivedBook");
         this.shield = nbt.getFloat("shield");
@@ -235,21 +206,18 @@ public class HbmPlayerProps implements ICapabilitySerializable<CompoundTag> {
         this.enableHUD = nbt.getBoolean("enableHUD");
         this.reputation = nbt.getInt("reputation");
         this.isOnLadder = nbt.getBoolean("isOnLadder");
-    }
-
-    @Override
-    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-        if (cap == HBM_PLAYER_PROPS_CAP) {
-            return net.minecraftforge.common.util.LazyOptional.of(() -> (IHbmPlayerProps) this).cast();
-        }
-        return net.minecraftforge.common.util.LazyOptional.empty();
+        this.dashCooldown = nbt.getInt("dashCooldown");
+        this.totalDashCount = nbt.getInt("totalDashCount");
+        this.stamina = nbt.getInt("stamina");
+        this.plinkCooldown = nbt.getInt("plinkCooldown");
+        this.lastDamage = nbt.getInt("lastDamage");
     }
 
     /**
      * Helper method to get the capability from a player.
      */
     public static HbmPlayerProps get(Player player) {
-        return player.getCapability(HBM_PLAYER_PROPS_CAP, null)
+        return player.getCapability(CustomCapabilities.HBM_PLAYER_CAPABILITY)
                 .orElseThrow(() -> new IllegalArgumentException("HbmPlayerProps capability not attached"));
     }
 }
