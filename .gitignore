@@ -23,3 +23,9 @@ run
 
 # Files from Forge MDK
 forge*changelog.txt
+
+OLD_MOD_FILES/*
+OLD_MOD_FILES
+/OLD_MOD_FILES
+/OLD_MOD_FILES/
+/OLD_MOD_FILES/*

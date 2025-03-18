@@ -1,6 +1,7 @@
 package com.miniverse.hbm.items;
 
 import com.miniverse.hbm.HBMNuclearTechCriticality;
+import com.miniverse.hbm.items.*;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;

@@ -1,6 +1,11 @@
 You're going to help me port a minecraft forge mod from 1.7.10 to 1.20.1
+
 The package name has changed from com.hbm to com.miniverse.hbm
+
 The main mod file changed from com.hbm.main.MainRegistry to com.miniverse.hbm.HBMNuclearTechCriticality
+
 HbmLivingProps and HbmPlayerProps are now capabilities with the same name, located under com.miniverse.hbm.capabilities
+
+Replace any reference to RefString.MODID to HBMNuclearTechCriticality.MODID
 
 Heres the first class:
